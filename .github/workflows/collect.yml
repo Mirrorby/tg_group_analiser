@@ -28,4 +28,4 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           MESSAGES_LIMIT: 500
           DELAY_BETWEEN_GROUPS: 3
-        run: python collector/main.py
+        run: PYTHONPATH=$PYTHONPATH:. python collector/main.py
