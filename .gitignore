@@ -1,0 +1,20 @@
+# Секреты — никогда не коммитить
+.env
+*.session
+
+# Результаты и временные файлы
+data/results/*
+!data/results/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.Python
+
+# IDE
+.idea/
+.vscode/
+*.swp
