@@ -196,8 +196,8 @@ async def collect_group(client: TelegramClient, pool: asyncpg.Pool, input_link: 
         async for msg in client.iter_messages(entity, limit=MESSAGES_LIMIT):
             messages.append(msg)
 
-        msg_7d  = sum(1 for m in messages if m.date and m.date.replace(tzinfo=timezone.utc) >= week_ago)
-        msg_30d = sum(1 for m in messages if m.date and m.date.replace(tzinfo=timezone.utc) >= month_ago)
+        msg_7d  = sum(1 for m in messages if m.date and to_utc(m.date) >= week_ago)
+        msg_30d = sum(1 for m in messages if m.date and to_utc(m.date) >= month_ago)
 
         views_list    = [m.views    or 0 for m in messages if m.views    is not None]
         forwards_list = [m.forwards or 0 for m in messages if m.forwards is not None]
@@ -211,7 +211,7 @@ async def collect_group(client: TelegramClient, pool: asyncpg.Pool, input_link: 
         media_share    = len(media_msgs) / len(messages) * 100 if messages else 0
         unique_authors = len({
             m.sender_id for m in messages
-            if m.sender_id and m.date and m.date.replace(tzinfo=timezone.utc) >= month_ago
+            if m.sender_id and m.date and to_utc(m.date) >= month_ago
         })
         ph    = peak_hour(messages)
         top_w = extract_top_words(messages)
