@@ -113,6 +113,15 @@ def extract_top_words(messages, top_n=30):
     return Counter(words).most_common(top_n)
 
 
+def to_utc(dt):
+    """Приводит naive datetime к UTC-aware."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
 def peak_hour(messages) -> int | None:
     hours = [m.date.hour for m in messages if m.date]
     return Counter(hours).most_common(1)[0][0] if hours else None
@@ -216,7 +225,7 @@ async def collect_group(client: TelegramClient, pool: asyncpg.Pool, input_link: 
                     collected_at  = NOW(), status     = 'done', error_message = NULL
                 WHERE id = $9
             """, uname, tg_id, title, description, members,
-                group_type, is_public, created_at, group_db_id)
+                group_type, is_public, to_utc(created_at), group_db_id)
 
             await conn.execute("""
                 INSERT INTO group_stats
@@ -238,7 +247,7 @@ async def collect_group(client: TelegramClient, pool: asyncpg.Pool, input_link: 
                     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
                     ON CONFLICT (group_id, message_id) DO NOTHING
                 """, group_db_id, msg.id,
-                    msg.date.replace(tzinfo=timezone.utc) if msg.date else None,
+                    to_utc(msg.date),
                     msg.sender_id, text, msg.views, msg.forwards,
                     msg.replies.replies if msg.replies else None,
                     bool(msg.media), media_type)
