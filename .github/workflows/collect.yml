@@ -1,0 +1,31 @@
+name: Collect TG Stats
+
+on:
+  workflow_dispatch:  # запуск вручную кнопкой на GitHub
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120  # 2 часа максимум (200 групп могут занять время)
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run collector
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_STRING_SESSION: ${{ secrets.TG_STRING_SESSION }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          MESSAGES_LIMIT: 500
+          DELAY_BETWEEN_GROUPS: 3
+        run: python collector/main.py
